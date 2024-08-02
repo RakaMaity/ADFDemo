@@ -1,0 +1,35 @@
+{
+	"name": "LinkedServiceSQL",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"parameters": {
+			"servername": {
+				"type": "string"
+			},
+			"dbName": {
+				"type": "string"
+			},
+			"username": {
+				"type": "string"
+			},
+			"password": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "SqlServer",
+		"typeProperties": {
+			"server": "@{linkedService().servername}",
+			"database": "@{linkedService().dbName}",
+			"encrypt": "mandatory",
+			"trustServerCertificate": false,
+			"authenticationType": "SQL",
+			"userName": "@{linkedService().username}",
+			"password": "@{linkedService().password}"
+		},
+		"connectVia": {
+			"referenceName": "SelfHostIR",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}

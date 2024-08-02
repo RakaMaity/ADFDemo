@@ -1,0 +1,53 @@
+{
+	"name": "dataflowDerivedColumn",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "DataFlowSourceEmployee",
+						"type": "DatasetReference"
+					},
+					"name": "employee"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DelimitedTextOutput",
+						"type": "DatasetReference"
+					},
+					"name": "EmpWithRegion"
+				}
+			],
+			"transformations": [
+				{
+					"name": "derivedColumn1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          empid as string,",
+				"          empName as string,",
+				"          gender as string,",
+				"          location as string,",
+				"          department as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> employee",
+				"employee derive(gender = upper(gender),",
+				"          region = iif(equalsIgnoreCase(location, \"Mexico\"),\"Central America\",\"North America\"),",
+				"          experience = case(equalsIgnoreCase(empName,\"ABC\"),5\r",
+				",equalsIgnoreCase(empName,\"WTR\"),10,equalsIgnoreCase(empName,\"TGF\"),15,equalsIgnoreCase(empName,\"ITE\"),20)) ~> derivedColumn1",
+				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     partitionFileNames:['EmployeeWithRegion.csv'],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> EmpWithRegion"
+			]
+		}
+	}
+}

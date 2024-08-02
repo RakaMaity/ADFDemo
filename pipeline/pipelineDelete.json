@@ -1,0 +1,48 @@
+{
+	"name": "pipelineDelete",
+	"properties": {
+		"activities": [
+			{
+				"name": "Delete1",
+				"type": "Delete",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [
+					{
+						"name": "FinalOutput",
+						"value": "XLSX has been deleted"
+					}
+				],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "DataSetTest1Output",
+						"type": "DatasetReference"
+					},
+					"logStorageSettings": {
+						"linkedServiceName": {
+							"referenceName": "LinkedServiceTest1",
+							"type": "LinkedServiceReference"
+						},
+						"path": "test1containerrg"
+					},
+					"enableLogging": true,
+					"storeSettings": {
+						"type": "AzureBlobStorageReadSettings",
+						"recursive": true,
+						"wildcardFileName": "*.xlsx",
+						"enablePartitionDiscovery": false
+					}
+				}
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2024-07-28T18:15:46Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

@@ -1,0 +1,53 @@
+{
+	"name": "dataflowParameteriztn",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "DataFlowSourceEmployee",
+						"type": "DatasetReference"
+					},
+					"name": "employeedata"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DelimitedTextOutput",
+						"type": "DatasetReference"
+					},
+					"name": "sinkEMployeesParam"
+				}
+			],
+			"transformations": [
+				{
+					"name": "filterEmployeeOndept"
+				}
+			],
+			"scriptLines": [
+				"parameters{",
+				"     Dept as string",
+				"}",
+				"source(output(",
+				"          empid as string,",
+				"          empName as string,",
+				"          gender as string,",
+				"          location as string,",
+				"          department as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> employeedata",
+				"employeedata filter(department != $Dept) ~> filterEmployeeOndept",
+				"filterEmployeeOndept sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     partitionFileNames:['EMployeesParam.csv'],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> sinkEMployeesParam"
+			]
+		}
+	}
+}

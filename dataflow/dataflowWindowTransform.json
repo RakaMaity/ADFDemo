@@ -1,0 +1,54 @@
+{
+	"name": "dataflowWindowTransform",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "WindowDataSet",
+						"type": "DatasetReference"
+					},
+					"name": "sourceMultipleEmployees"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DelimitedTextOutput",
+						"type": "DatasetReference"
+					},
+					"name": "sinkEmpWindow"
+				}
+			],
+			"transformations": [
+				{
+					"name": "window1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          empid as short,",
+				"          empName as string,",
+				"          gender as string,",
+				"          location as string,",
+				"          department as string,",
+				"          Salary as short",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> sourceMultipleEmployees",
+				"sourceMultipleEmployees window(over(department),",
+				"     asc(Salary, true),",
+				"     AvgSalary = avg(Salary),",
+				"          Rank = denseRank()) ~> window1",
+				"window1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     partitionFileNames:['sinkEmpWindow.csv'],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> sinkEmpWindow"
+			]
+		}
+	}
+}

@@ -1,0 +1,73 @@
+{
+	"name": "MasterPipeline",
+	"properties": {
+		"description": "Master-Slave",
+		"activities": [
+			{
+				"name": "Master",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pipelineSQLParam",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"serverNameFromPipeline": {
+							"value": "@pipeline().parameters.serverName",
+							"type": "Expression"
+						},
+						"dbNameFromPipeline": {
+							"value": "@pipeline().parameters.dbName",
+							"type": "Expression"
+						},
+						"userNameFromPipeline": {
+							"value": "@pipeline().parameters.userName",
+							"type": "Expression"
+						},
+						"passwordFromPipeline": {
+							"value": "@pipeline().parameters.Password",
+							"type": "Expression"
+						},
+						"sourceTableNameFromPipeline": {
+							"value": "@pipeline().parameters.SourceTable",
+							"type": "Expression"
+						},
+						"destinationTableNameFromPipeline": {
+							"value": "@pipeline().parameters.DestTable",
+							"type": "Expression"
+						}
+					}
+				}
+			}
+		],
+		"parameters": {
+			"serverName": {
+				"type": "string"
+			},
+			"dbName": {
+				"type": "string"
+			},
+			"userName": {
+				"type": "string"
+			},
+			"Password": {
+				"type": "string"
+			},
+			"SourceTable": {
+				"type": "string"
+			},
+			"DestTable": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2024-07-29T16:38:21Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

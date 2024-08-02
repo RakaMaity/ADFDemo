@@ -1,0 +1,18 @@
+{
+	"name": "powerqueryTableUpdate",
+	"properties": {
+		"type": "WranglingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"name": "DataFlowSourceEmployee",
+					"script": "source(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> DataFlowSourceEmployee",
+					"dataset": {
+						"referenceName": "DataFlowSourceEmployee",
+						"type": "DatasetReference"
+					}
+				}
+			]
+		}
+	}
+}

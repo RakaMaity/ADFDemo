@@ -1,0 +1,62 @@
+{
+	"name": "dataflowFilterTrans",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "DataFlowSourceEmployee",
+						"type": "DatasetReference"
+					},
+					"name": "employee"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DelimitedTextOutput",
+						"type": "DatasetReference"
+					},
+					"name": "FilteredEmployees",
+					"rejectedDataLinkedService": {
+						"referenceName": "LinkedServiceTest1",
+						"type": "LinkedServiceReference"
+					}
+				}
+			],
+			"transformations": [
+				{
+					"name": "filteremployeesbasedondept"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          empid as string,",
+				"          empName as string,",
+				"          gender as string,",
+				"          location as string,",
+				"          department as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     limit: 10,",
+				"     ignoreNoFilesFound: false) ~> employee",
+				"employee filter(notEquals(department,\"Biology\")) ~> filteremployeesbasedondept",
+				"filteremployeesbasedondept sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     partitionFileNames:['FilteredEmployees.csv'],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     mapColumn(",
+				"          empid,",
+				"          empName,",
+				"          gender,",
+				"          location,",
+				"          department",
+				"     ),",
+				"     partitionBy('hash', 1)) ~> FilteredEmployees"
+			]
+		}
+	}
+}

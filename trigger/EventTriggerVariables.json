@@ -1,0 +1,29 @@
+{
+	"name": "EventTriggerVariables",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Stopped",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "pipeline1variables",
+					"type": "PipelineReference"
+				},
+				"parameters": {
+					"FileName": "@triggerBody().fileName"
+				}
+			}
+		],
+		"type": "BlobEventsTrigger",
+		"typeProperties": {
+			"blobPathBeginsWith": "/test1containerrg/blobs/output/",
+			"blobPathEndsWith": "dataCopy.txt",
+			"ignoreEmptyBlobs": true,
+			"scope": "/subscriptions/4d203d9f-5fcc-460b-bfcb-e6d413307f8d/resourceGroups/Test1ResourceGrp/providers/Microsoft.Storage/storageAccounts/test1resourcegrp",
+			"events": [
+				"Microsoft.Storage.BlobCreated",
+				"Microsoft.Storage.BlobDeleted"
+			]
+		}
+	}
+}

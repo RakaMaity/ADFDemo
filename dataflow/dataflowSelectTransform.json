@@ -1,0 +1,65 @@
+{
+	"name": "dataflowSelectTransform",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "DataFlowSourceEmployee",
+						"type": "DatasetReference"
+					},
+					"name": "employee"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DelimitedTextOutput",
+						"type": "DatasetReference"
+					},
+					"name": "EmployeePostSelectOperation"
+				}
+			],
+			"transformations": [
+				{
+					"name": "selectEmployees"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          empid as string,",
+				"          empName as string,",
+				"          gender as string,",
+				"          location as string,",
+				"          department as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> employee",
+				"employee select(mapColumn(",
+				"          EmployeeId = empid,",
+				"          EmpName = empName,",
+				"          Location = location,",
+				"          Department = department,",
+				"          Gender = gender",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectEmployees",
+				"selectEmployees sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     partitionFileNames:['EmployeePostSelectOperation.csv'],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     mapColumn(",
+				"          EmployeeId,",
+				"          EmpName,",
+				"          Location,",
+				"          Department,",
+				"          Gender",
+				"     ),",
+				"     partitionBy('hash', 1)) ~> EmployeePostSelectOperation"
+			]
+		}
+	}
+}

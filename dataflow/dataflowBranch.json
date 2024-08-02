@@ -1,0 +1,126 @@
+{
+	"name": "dataflowBranch",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "DataFlowSourceEmployee",
+						"type": "DatasetReference"
+					},
+					"name": "employee"
+				},
+				{
+					"dataset": {
+						"referenceName": "DataFlowSourceDepartment",
+						"type": "DatasetReference"
+					},
+					"name": "department"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DelimitedTextOutput",
+						"type": "DatasetReference"
+					},
+					"name": "joinSink"
+				},
+				{
+					"dataset": {
+						"referenceName": "DelimitedTextOutput",
+						"type": "DatasetReference"
+					},
+					"name": "EmpCountSink"
+				},
+				{
+					"dataset": {
+						"referenceName": "DelimitedTextOutput",
+						"type": "DatasetReference"
+					},
+					"name": "SinkLookUp"
+				}
+			],
+			"transformations": [
+				{
+					"name": "aggregate1"
+				},
+				{
+					"name": "joinempanddept"
+				},
+				{
+					"name": "lookup1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          empid as string,",
+				"          empName as string,",
+				"          gender as string,",
+				"          location as string,",
+				"          department as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> employee",
+				"source(output(",
+				"          department as string,",
+				"          role as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> department",
+				"employee aggregate(groupBy(gender),",
+				"     TotalEmployees = count(gender)) ~> aggregate1",
+				"employee, department join(employee@department == department@department,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> joinempanddept",
+				"employee, department lookup(employee@department == department@department,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> lookup1",
+				"joinempanddept sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     partitionFileNames:['joinempanddept.csv'],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     mapColumn(",
+				"          empid,",
+				"          empName,",
+				"          gender,",
+				"          location,",
+				"          department = employee@department,",
+				"          role",
+				"     ),",
+				"     partitionBy('hash', 1)) ~> joinSink",
+				"aggregate1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     partitionFileNames:['genderwithempcount.csv'],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     mapColumn(",
+				"          gender,",
+				"          TotalEmployees",
+				"     ),",
+				"     partitionBy('hash', 1)) ~> EmpCountSink",
+				"lookup1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     partitionFileNames:['lookup.csv'],",
+				"     skipDuplicateMapInputs: true,",
+				"     mapColumn(",
+				"          empid,",
+				"          empName,",
+				"          gender,",
+				"          location,",
+				"          department = employee@department,",
+				"          dept = department@department,",
+				"          role",
+				"     ),",
+				"     partitionBy('hash', 1)) ~> SinkLookUp"
+			]
+		}
+	}
+}

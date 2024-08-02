@@ -1,0 +1,68 @@
+{
+	"name": "pipelineFilter",
+	"properties": {
+		"activities": [
+			{
+				"name": "Filter1",
+				"type": "Filter",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@pipeline().parameters.ListOfValues",
+						"type": "Expression"
+					},
+					"condition": {
+						"value": "@greater(item(),3)",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Append variable1",
+				"type": "AppendVariable",
+				"dependsOn": [
+					{
+						"activity": "Filter1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [
+					{
+						"name": "FinalListOfValues",
+						"value": "@activity('Filter1').output"
+					}
+				],
+				"typeProperties": {
+					"variableName": "FinalListOfValues",
+					"value": {
+						"value": "@activity('Filter1').output",
+						"type": "Expression"
+					}
+				}
+			}
+		],
+		"parameters": {
+			"ListOfValues": {
+				"type": "array",
+				"defaultValue": [
+					1,
+					2,
+					3,
+					4,
+					5
+				]
+			}
+		},
+		"variables": {
+			"FinalListOfValues": {
+				"type": "Array"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2024-07-29T16:43:10Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

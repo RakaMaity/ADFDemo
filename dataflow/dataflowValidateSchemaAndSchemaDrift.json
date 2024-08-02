@@ -1,0 +1,52 @@
+{
+	"name": "dataflowValidateSchemaAndSchemaDrift",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "biologyDataSet",
+						"type": "DatasetReference"
+					},
+					"name": "sourceValidateSchema"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DelimitedTextOutput",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [],
+			"scriptLines": [
+				"source(output(",
+				"          empid as boolean,",
+				"          empName as string,",
+				"          location as string,",
+				"          department as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     inferDriftedColumnTypes: true,",
+				"     ignoreNoFilesFound: false,",
+				"     preferredIntegralType: 'integer') ~> sourceValidateSchema",
+				"sourceValidateSchema sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     partitionFileNames:['validation.csv'],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     mapColumn(",
+				"          empid,",
+				"          empName,",
+				"          location,",
+				"          department",
+				"     ),",
+				"     partitionBy('hash', 1)) ~> sink1"
+			]
+		}
+	}
+}

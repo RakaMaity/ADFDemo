@@ -1,0 +1,54 @@
+{
+	"name": "dataflowPivot",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "DataFlowSourceEmployee",
+						"type": "DatasetReference"
+					},
+					"name": "employee"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DelimitedTextOutput",
+						"type": "DatasetReference"
+					},
+					"name": "SinkPivot"
+				}
+			],
+			"transformations": [
+				{
+					"name": "pivotEmployee"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          empid as string,",
+				"          empName as string,",
+				"          gender as string,",
+				"          location as string,",
+				"          department as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> employee",
+				"employee pivot(groupBy(department),",
+				"     pivotBy(gender),",
+				"     {} = count(empid),",
+				"     columnNaming: '$N$V',",
+				"     lateral: true) ~> pivotEmployee",
+				"pivotEmployee sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     partitionFileNames:['SinkPivotEmployee.csv'],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> SinkPivot"
+			]
+		}
+	}
+}

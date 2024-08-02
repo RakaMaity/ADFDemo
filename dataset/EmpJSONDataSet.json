@@ -1,0 +1,75 @@
+{
+	"name": "EmpJSONDataSet",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LinkedServiceTest1",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "employees.json",
+				"folderPath": "input",
+				"container": "test1containerrg"
+			}
+		},
+		"schema": {
+			"type": "object",
+			"properties": {
+				"id": {
+					"type": "integer"
+				},
+				"first_name": {
+					"type": "string"
+				},
+				"last_name": {
+					"type": "string"
+				},
+				"contact": {
+					"type": "object",
+					"properties": {
+						"email": {
+							"type": "string"
+						},
+						"phone": {
+							"type": "string"
+						}
+					}
+				},
+				"skills": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					}
+				},
+				"gender": {
+					"type": "string"
+				},
+				"age": {
+					"type": "integer"
+				},
+				"job_title": {
+					"type": "string"
+				},
+				"years_of_experience": {
+					"type": "integer"
+				},
+				"salary": {
+					"type": "integer"
+				},
+				"department": {
+					"type": "string"
+				},
+				"email": {
+					"type": "string"
+				},
+				"phone": {
+					"type": "string"
+				}
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}
