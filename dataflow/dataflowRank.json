@@ -1,0 +1,54 @@
+{
+	"name": "dataflowRank",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "WindowDataSet",
+						"type": "DatasetReference"
+					},
+					"name": "sourceEMployees"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DelimitedTextOutput",
+						"type": "DatasetReference"
+					},
+					"name": "sinkEompoyeesWithRank"
+				}
+			],
+			"transformations": [
+				{
+					"name": "rankofEmployees"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          empid as string,",
+				"          empName as string,",
+				"          gender as string,",
+				"          location as string,",
+				"          department as string,",
+				"          Salary as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> sourceEMployees",
+				"sourceEMployees rank(asc(Salary, true),",
+				"     caseInsensitive: true,",
+				"     output(Rank as long),",
+				"     dense: true) ~> rankofEmployees",
+				"rankofEmployees sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     partitionFileNames:['EmployeesWithRank.csv'],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> sinkEompoyeesWithRank"
+			]
+		}
+	}
+}
