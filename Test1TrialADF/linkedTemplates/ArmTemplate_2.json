@@ -13,6 +13,140 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/dataflowExists')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "DataFlowSourceEmployee",
+								"type": "DatasetReference"
+							},
+							"name": "employee"
+						},
+						{
+							"dataset": {
+								"referenceName": "DataFlowSourceDepartment",
+								"type": "DatasetReference"
+							},
+							"name": "department"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "DelimitedTextOutput",
+								"type": "DatasetReference"
+							},
+							"name": "employeeExists"
+						}
+					],
+					"transformations": [
+						{
+							"name": "exists1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          empid as string,",
+						"          empName as string,",
+						"          gender as string,",
+						"          location as string,",
+						"          department as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> employee",
+						"source(output(",
+						"          department as string,",
+						"          role as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> department",
+						"employee, department exists(employee@department == iif(equals(department@department,'Law'),\"Law\",\"\"),",
+						"     negate:true,",
+						"     broadcast: 'auto')~> exists1",
+						"exists1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:['employeeExists.csv'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> employeeExists"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflowFilterTrans')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "DataFlowSourceEmployee",
+								"type": "DatasetReference"
+							},
+							"name": "employee"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "DelimitedTextOutput",
+								"type": "DatasetReference"
+							},
+							"name": "FilteredEmployees",
+							"rejectedDataLinkedService": {
+								"referenceName": "LinkedServiceTest1",
+								"type": "LinkedServiceReference"
+							}
+						}
+					],
+					"transformations": [
+						{
+							"name": "filteremployeesbasedondept"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          empid as string,",
+						"          empName as string,",
+						"          gender as string,",
+						"          location as string,",
+						"          department as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     limit: 10,",
+						"     ignoreNoFilesFound: false) ~> employee",
+						"employee filter(notEquals(department,\"Biology\")) ~> filteremployeesbasedondept",
+						"filteremployeesbasedondept sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:['FilteredEmployees.csv'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     mapColumn(",
+						"          empid,",
+						"          empName,",
+						"          gender,",
+						"          location,",
+						"          department",
+						"     ),",
+						"     partitionBy('hash', 1)) ~> FilteredEmployees"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/dataflowJSONEmp')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -1148,7 +1282,9 @@
 				"annotations": [],
 				"lastPublishTime": "2024-07-31T08:33:50Z"
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/dataflowFilterTrans')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/pipelineDataFlowJoin')]",
@@ -1195,111 +1331,6 @@
 				"lastPublishTime": "2024-07-31T08:06:59Z"
 			},
 			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/pipelineDataFlowLookUp')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Data flow1",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "dataflowLookup",
-								"type": "DataFlowReference",
-								"parameters": {},
-								"datasetParameters": {
-									"Employee": {},
-									"Department": {},
-									"LookUpOutput": {}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"annotations": [],
-				"lastPublishTime": "2024-08-01T15:24:37Z"
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/dataflows/dataflowLookup')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/pipelineDataFlowParam')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Data flow1",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "dataflowParameteriztn",
-								"type": "DataFlowReference",
-								"parameters": {
-									"Dept": {
-										"value": "'@{pipeline().parameters.DeprName}'",
-										"type": "Expression"
-									}
-								},
-								"datasetParameters": {
-									"employeedata": {},
-									"sinkEMployeesParam": {}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"parameters": {
-					"DeprName": {
-						"type": "string"
-					}
-				},
-				"annotations": [],
-				"lastPublishTime": "2024-08-02T09:10:07Z"
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/dataflows/dataflowParameteriztn')]"
-			]
 		}
 	]
 }

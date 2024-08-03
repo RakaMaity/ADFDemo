@@ -1,1 +1,10 @@
-{}
+{
+	"GlobalRoot": {
+		"type": "string",
+		"value": "test1containerrg/input"
+	},
+	"GlobalFIleName": {
+		"type": "string",
+		"value": "employee.csv"
+	}
+}
