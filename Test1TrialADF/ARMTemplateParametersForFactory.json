@@ -11,6 +11,9 @@
 		"LinkedServiceTest2SelfHost_connectionString": {
 			"value": ""
 		},
+		"LinkedService_SQL_password": {
+			"value": ""
+		},
 		"LinkedServiceSQL_properties_typeProperties_server": {
 			"value": "@{linkedService().servername}"
 		},
@@ -19,6 +22,15 @@
 		},
 		"LinkedServiceSQL_properties_typeProperties_userName": {
 			"value": "@{linkedService().username}"
+		},
+		"LinkedService_SQL_properties_typeProperties_server": {
+			"value": "azureadfraka.database.windows.net"
+		},
+		"LinkedService_SQL_properties_typeProperties_database": {
+			"value": "azure-ADF-practice"
+		},
+		"LinkedService_SQL_properties_typeProperties_userName": {
+			"value": "SQLDBADF"
 		},
 		"EventTriggerVariables_properties_pipeline1variables_parameters_FileName": {
 			"value": "@triggerBody().fileName"

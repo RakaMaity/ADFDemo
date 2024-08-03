@@ -15,6 +15,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'LinkedServiceTest2SelfHost'"
 		},
+		"LinkedService_SQL_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'LinkedService_SQL'"
+		},
 		"LinkedServiceSQL_properties_typeProperties_server": {
 			"type": "string",
 			"defaultValue": "@{linkedService().servername}"
@@ -26,6 +30,18 @@
 		"LinkedServiceSQL_properties_typeProperties_userName": {
 			"type": "string",
 			"defaultValue": "@{linkedService().username}"
+		},
+		"LinkedService_SQL_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "azureadfraka.database.windows.net"
+		},
+		"LinkedService_SQL_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "azure-ADF-practice"
+		},
+		"LinkedService_SQL_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "SQLDBADF"
 		},
 		"EventTriggerVariables_properties_pipeline1variables_parameters_FileName": {
 			"type": "string",
@@ -547,6 +563,54 @@
 				]
 			},
 			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pipelineCacheSink')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Data flow1",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "dataflowCacheSink",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"employees": {},
+									"Employee": {},
+									"MaxCountofEmpId": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/dataflowCacheSink')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/pipelineDataFlowAggr')]",
@@ -2681,6 +2745,48 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/DataSet_SQLServer')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LinkedService_SQL",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "SqlServerTable",
+				"schema": [
+					{
+						"name": "empId",
+						"type": "varchar"
+					},
+					{
+						"name": "empName",
+						"type": "varchar"
+					},
+					{
+						"name": "gender",
+						"type": "varchar"
+					},
+					{
+						"name": "location",
+						"type": "varchar"
+					},
+					{
+						"name": "department",
+						"type": "varchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "employee"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LinkedService_SQL')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/DelimitedTextInput')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -3242,6 +3348,28 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/LinkedService_SQL')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "SqlServer",
+				"typeProperties": {
+					"server": "[parameters('LinkedService_SQL_properties_typeProperties_server')]",
+					"database": "[parameters('LinkedService_SQL_properties_typeProperties_database')]",
+					"encrypt": "mandatory",
+					"trustServerCertificate": false,
+					"authenticationType": "SQL",
+					"userName": "[parameters('LinkedService_SQL_properties_typeProperties_userName')]",
+					"password": {
+						"type": "SecureString",
+						"value": "[parameters('LinkedService_SQL_password')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/EventTriggerVariables')]",
 			"type": "Microsoft.DataFactory/factories/triggers",
 			"apiVersion": "2018-06-01",
@@ -3680,6 +3808,117 @@
 				"[concat(variables('factoryId'), '/datasets/DataFlowSourceDepartment')]",
 				"[concat(variables('factoryId'), '/datasets/DelimitedTextOutput')]",
 				"[concat(variables('factoryId'), '/linkedServices/LinkedServiceTest1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflowCacheSink')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "DataSet_SQLServer",
+								"type": "DatasetReference"
+							},
+							"name": "employees"
+						},
+						{
+							"dataset": {
+								"referenceName": "DataFlowSourceEmployee",
+								"type": "DatasetReference"
+							},
+							"name": "Employee"
+						}
+					],
+					"sinks": [
+						{
+							"name": "MaxCountofEmpId"
+						},
+						{
+							"dataset": {
+								"referenceName": "DataSet_SQLServer",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "selectcolumns"
+						},
+						{
+							"name": "surrogateKey1"
+						},
+						{
+							"name": "derivedColumn1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          MaxEmpId as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: 'select max(empId) as MaxEmpId from dbo.employee',",
+						"     format: 'query') ~> employees",
+						"source(output(",
+						"          empid as long,",
+						"          empName as string,",
+						"          gender as string,",
+						"          location as string,",
+						"          department as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> Employee",
+						"Employee select(mapColumn(",
+						"          empName,",
+						"          gender,",
+						"          location,",
+						"          department",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectcolumns",
+						"selectcolumns keyGenerate(output(empId as long),",
+						"     startAt: 1L,",
+						"     stepValue: 1L) ~> surrogateKey1",
+						"surrogateKey1 derive(empId = empId+MaxCountofEmpId#outputs()[1].MaxEmpId) ~> derivedColumn1",
+						"employees sink(validateSchema: false,",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     store: 'cache',",
+						"     format: 'inline',",
+						"     output: false,",
+						"     saveOrder: 0,",
+						"     mapColumn(",
+						"          MaxEmpId",
+						"     )) ~> MaxCountofEmpId",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          empId as string,",
+						"          empName as string,",
+						"          gender as string,",
+						"          location as string,",
+						"          department as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/DataSet_SQLServer')]",
+				"[concat(variables('factoryId'), '/datasets/DataFlowSourceEmployee')]"
 			]
 		},
 		{
@@ -4330,6 +4569,15 @@
 						"     partitionFileNames:['EmployeesWithRank.csv'],",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
+						"     mapColumn(",
+						"          empid,",
+						"          empName,",
+						"          gender,",
+						"          location,",
+						"          department,",
+						"          Salary,",
+						"          Rank",
+						"     ),",
 						"     partitionBy('hash', 1)) ~> sinkEompoyeesWithRank"
 					]
 				}

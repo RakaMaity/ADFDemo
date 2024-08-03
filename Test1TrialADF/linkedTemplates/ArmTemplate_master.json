@@ -15,6 +15,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'LinkedServiceTest2SelfHost'"
 		},
+		"LinkedService_SQL_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'LinkedService_SQL'"
+		},
 		"LinkedServiceSQL_properties_typeProperties_server": {
 			"type": "string",
 			"defaultValue": "@{linkedService().servername}"
@@ -26,6 +30,18 @@
 		"LinkedServiceSQL_properties_typeProperties_userName": {
 			"type": "string",
 			"defaultValue": "@{linkedService().username}"
+		},
+		"LinkedService_SQL_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "azureadfraka.database.windows.net"
+		},
+		"LinkedService_SQL_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "azure-ADF-practice"
+		},
+		"LinkedService_SQL_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "SQLDBADF"
 		},
 		"EventTriggerVariables_properties_pipeline1variables_parameters_FileName": {
 			"type": "string",
@@ -64,6 +80,18 @@
 					},
 					"LinkedServiceTest1_connectionString": {
 						"value": "[parameters('LinkedServiceTest1_connectionString')]"
+					},
+					"LinkedService_SQL_password": {
+						"value": "[parameters('LinkedService_SQL_password')]"
+					},
+					"LinkedService_SQL_properties_typeProperties_server": {
+						"value": "[parameters('LinkedService_SQL_properties_typeProperties_server')]"
+					},
+					"LinkedService_SQL_properties_typeProperties_database": {
+						"value": "[parameters('LinkedService_SQL_properties_typeProperties_database')]"
+					},
+					"LinkedService_SQL_properties_typeProperties_userName": {
+						"value": "[parameters('LinkedService_SQL_properties_typeProperties_userName')]"
 					}
 				}
 			},
