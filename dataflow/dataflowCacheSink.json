@@ -22,9 +22,19 @@
 			"sinks": [
 				{
 					"name": "MaxCountofEmpId"
+				},
+				{
+					"dataset": {
+						"referenceName": "DataSet_SQLServer",
+						"type": "DatasetReference"
+					},
+					"name": "sioutputSQL"
 				}
 			],
 			"transformations": [
+				{
+					"name": "selectcolumns"
+				},
 				{
 					"name": "surrogateKey1"
 				}
@@ -39,7 +49,7 @@
 				"     query: 'select max(empid) as MaxEmpId from dbo.employee',",
 				"     format: 'query') ~> employees",
 				"source(output(",
-				"          empid as string,",
+				"          empid as long,",
 				"          empName as string,",
 				"          gender as string,",
 				"          location as string,",
@@ -48,7 +58,15 @@
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false) ~> Employee",
-				"Employee keyGenerate(output(empId as long),",
+				"Employee select(mapColumn(",
+				"          empName,",
+				"          gender,",
+				"          location,",
+				"          department",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectcolumns",
+				"selectcolumns keyGenerate(output(empId as long),",
 				"     startAt: 2L,",
 				"     stepValue: 1L) ~> surrogateKey1",
 				"employees sink(validateSchema: false,",
@@ -57,10 +75,33 @@
 				"     store: 'cache',",
 				"     format: 'inline',",
 				"     output: false,",
-				"     saveOrder: 1,",
+				"     saveOrder: 0,",
 				"     mapColumn(",
 				"          MaxEmpId",
-				"     )) ~> MaxCountofEmpId"
+				"     )) ~> MaxCountofEmpId",
+				"surrogateKey1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          empId as string,",
+				"          empName as string,",
+				"          gender as string,",
+				"          location as string,",
+				"          department as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     mapColumn(",
+				"          empId,",
+				"          empName,",
+				"          gender,",
+				"          location,",
+				"          department",
+				"     )) ~> sioutputSQL"
 			]
 		}
 	}
