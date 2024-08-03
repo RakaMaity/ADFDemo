@@ -1,0 +1,30 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "Test1TrialADF"
+		},
+		"LinkedServiceTest1_connectionString": {
+			"value": ""
+		},
+		"LinkedServiceTest2SelfHost_connectionString": {
+			"value": ""
+		},
+		"LinkedServiceSQL_properties_typeProperties_server": {
+			"value": "@{linkedService().servername}"
+		},
+		"LinkedServiceSQL_properties_typeProperties_database": {
+			"value": "@{linkedService().dbName}"
+		},
+		"LinkedServiceSQL_properties_typeProperties_userName": {
+			"value": "@{linkedService().username}"
+		},
+		"EventTriggerVariables_properties_pipeline1variables_parameters_FileName": {
+			"value": "@triggerBody().fileName"
+		},
+		"EventTriggerVariables_properties_typeProperties_scope": {
+			"value": "/subscriptions/4d203d9f-5fcc-460b-bfcb-e6d413307f8d/resourceGroups/Test1ResourceGrp/providers/Microsoft.Storage/storageAccounts/test1resourcegrp"
+		}
+	}
+}
