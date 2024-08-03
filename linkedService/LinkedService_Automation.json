@@ -1,0 +1,17 @@
+{
+	"name": "LinkedService_Automation",
+	"properties": {
+		"annotations": [],
+		"type": "AzureBlobStorage",
+		"typeProperties": {
+			"connectionString": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "AzureKeyVault_LS",
+					"type": "LinkedServiceReference"
+				},
+				"secretName": "secret-ADF-KEY-VAULT"
+			}
+		}
+	}
+}
