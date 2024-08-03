@@ -6,7 +6,7 @@
 			"type": "LinkedServiceReference"
 		},
 		"parameters": {
-			"inputFolder": {
+			"inputfolder": {
 				"type": "String"
 			},
 			"fileName": {
@@ -22,11 +22,10 @@
 					"value": "@dataset().fileName",
 					"type": "Expression"
 				},
-				"folderPath": {
-					"value": "@dataset().inputFolder",
+				"container": {
+					"value": "@dataset().inputfolder",
 					"type": "Expression"
-				},
-				"container": "test1containerrg"
+				}
 			},
 			"columnDelimiter": ",",
 			"escapeChar": "\\",
