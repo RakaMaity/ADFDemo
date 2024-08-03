@@ -1,5 +1,13 @@
 {
 	"name": "Test1TrialADF",
+	"properties": {
+		"globalParameters": {
+			"GlobalInput": {
+				"type": "string",
+				"value": "test1containerrg/input"
+			}
+		}
+	},
 	"location": "centralindia",
 	"identity": {
 		"type": "SystemAssigned",
