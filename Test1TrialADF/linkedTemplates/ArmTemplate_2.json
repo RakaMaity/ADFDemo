@@ -474,7 +474,6 @@
 						"     validateSchema: false,",
 						"     ignoreNoFilesFound: false) ~> sourceEMployees",
 						"sourceEMployees rank(asc(Salary, true),",
-						"     caseInsensitive: true,",
 						"     output(Rank as long),",
 						"     dense: true) ~> rankofEmployees",
 						"rankofEmployees sink(allowSchemaDrift: true,",
