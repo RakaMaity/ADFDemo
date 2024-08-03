@@ -1,0 +1,37 @@
+{
+	"name": "DataSet_SQLServer",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LinkedService_SQL",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "SqlServerTable",
+		"schema": [
+			{
+				"name": "empId",
+				"type": "varchar"
+			},
+			{
+				"name": "empName",
+				"type": "varchar"
+			},
+			{
+				"name": "gender",
+				"type": "varchar"
+			},
+			{
+				"name": "location",
+				"type": "varchar"
+			},
+			{
+				"name": "department",
+				"type": "varchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "employee"
+		}
+	}
+}

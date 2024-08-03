@@ -1,0 +1,52 @@
+{
+	"name": "dataflowCacheSink",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "DataSet_SQLServer",
+						"type": "DatasetReference"
+					},
+					"name": "employees"
+				}
+			],
+			"sinks": [
+				{
+					"name": "CacheSink"
+				}
+			],
+			"transformations": [],
+			"scriptLines": [
+				"source(output(",
+				"          empId as string,",
+				"          empName as string,",
+				"          gender as string,",
+				"          location as string,",
+				"          department as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: 'select max(empid) as MaxEmpId from dbo.employee',",
+				"     format: 'query') ~> employees",
+				"employees sink(validateSchema: false,",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     keys:[''],",
+				"     store: 'cache',",
+				"     format: 'inline',",
+				"     output: false,",
+				"     saveOrder: 1,",
+				"     mapColumn(",
+				"          empId,",
+				"          empName,",
+				"          gender,",
+				"          location,",
+				"          department",
+				"     )) ~> CacheSink"
+			]
+		}
+	}
+}

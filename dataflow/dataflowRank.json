@@ -46,6 +46,15 @@
 				"     partitionFileNames:['EmployeesWithRank.csv'],",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
+				"     mapColumn(",
+				"          empid,",
+				"          empName,",
+				"          gender,",
+				"          location,",
+				"          department,",
+				"          Salary,",
+				"          Rank",
+				"     ),",
 				"     partitionBy('hash', 1)) ~> sinkEompoyeesWithRank"
 			]
 		}
