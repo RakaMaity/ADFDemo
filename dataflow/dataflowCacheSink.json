@@ -10,17 +10,36 @@
 						"type": "DatasetReference"
 					},
 					"name": "employees"
+				},
+				{
+					"dataset": {
+						"referenceName": "DataFlowSourceEmployee",
+						"type": "DatasetReference"
+					},
+					"name": "Employee"
 				}
 			],
 			"sinks": [
 				{
-					"name": "CacheSink"
+					"name": "MaxCountofEmpId"
 				}
 			],
-			"transformations": [],
+			"transformations": [
+				{
+					"name": "surrogateKey1"
+				}
+			],
 			"scriptLines": [
 				"source(output(",
-				"          empId as string,",
+				"          MaxEmpId as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: 'select max(empid) as MaxEmpId from dbo.employee',",
+				"     format: 'query') ~> employees",
+				"source(output(",
+				"          empid as string,",
 				"          empName as string,",
 				"          gender as string,",
 				"          location as string,",
@@ -28,24 +47,20 @@
 				"     ),",
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
-				"     isolationLevel: 'READ_UNCOMMITTED',",
-				"     query: 'select max(empid) as MaxEmpId from dbo.employee',",
-				"     format: 'query') ~> employees",
+				"     ignoreNoFilesFound: false) ~> Employee",
+				"Employee keyGenerate(output(empId as long),",
+				"     startAt: 2L,",
+				"     stepValue: 1L) ~> surrogateKey1",
 				"employees sink(validateSchema: false,",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
-				"     keys:[''],",
 				"     store: 'cache',",
 				"     format: 'inline',",
 				"     output: false,",
 				"     saveOrder: 1,",
 				"     mapColumn(",
-				"          empId,",
-				"          empName,",
-				"          gender,",
-				"          location,",
-				"          department",
-				"     )) ~> CacheSink"
+				"          MaxEmpId",
+				"     )) ~> MaxCountofEmpId"
 			]
 		}
 	}
