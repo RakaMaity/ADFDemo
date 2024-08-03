@@ -1,0 +1,21 @@
+{
+	"name": "LinkedService_SQL",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "SqlServer",
+		"typeProperties": {
+			"server": "azureadfraka.database.windows.net",
+			"database": "azure-ADF-practice",
+			"encrypt": "mandatory",
+			"trustServerCertificate": false,
+			"authenticationType": "SQL",
+			"userName": "SQLDBADF",
+			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiI5YjUwMDA4ZS00ODIwLTQ1NmMtOWEyYy1mZWFiODM1YWY1MDgiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
+		},
+		"connectVia": {
+			"referenceName": "SelfHostIR",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}
