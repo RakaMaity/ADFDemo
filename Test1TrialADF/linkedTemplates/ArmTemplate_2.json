@@ -432,6 +432,63 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/dataflowRank')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "WindowDataSet",
+								"type": "DatasetReference"
+							},
+							"name": "sourceEMployees"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "DelimitedTextOutput",
+								"type": "DatasetReference"
+							},
+							"name": "sinkEompoyeesWithRank"
+						}
+					],
+					"transformations": [
+						{
+							"name": "rankofEmployees"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          empid as string,",
+						"          empName as string,",
+						"          gender as string,",
+						"          location as string,",
+						"          department as string,",
+						"          Salary as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> sourceEMployees",
+						"sourceEMployees rank(asc(Salary, true),",
+						"     caseInsensitive: true,",
+						"     output(Rank as long),",
+						"     dense: true) ~> rankofEmployees",
+						"rankofEmployees sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:['EmployeesWithRank.csv'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> sinkEompoyeesWithRank"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/dataflowSelectTransform')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -1285,52 +1342,6 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/dataflows/dataflowFilterTrans')]"
 			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/pipelineDataFlowJoin')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "EmpJOINDept",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "dataflowCSVjoin",
-								"type": "DataFlowReference",
-								"parameters": {},
-								"datasetParameters": {
-									"employee": {},
-									"department": {},
-									"joinOutput": {}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"annotations": [],
-				"lastPublishTime": "2024-07-31T08:06:59Z"
-			},
-			"dependsOn": []
 		}
 	]
 }

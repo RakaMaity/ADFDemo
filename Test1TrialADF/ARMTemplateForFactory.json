@@ -894,6 +894,52 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/pipelineDataFlowRank')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Data flow1",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "dataflowRank",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"sourceEMployees": {},
+									"sinkEompoyeesWithRank": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/dataflowRank')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/pipelineDataFlowSurrogateKey')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -2297,30 +2343,6 @@
 								"parameters": {}
 							}
 						]
-					},
-					{
-						"name": "WebHook1",
-						"type": "WebHook",
-						"dependsOn": [
-							{
-								"activity": "Validation1",
-								"dependencyConditions": [
-									"Failed"
-								]
-							}
-						],
-						"policy": {
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"url": "\thttps://dummy.restapiexample.com/api/v1/employees",
-							"method": "POST",
-							"headers": {},
-							"body": {},
-							"timeout": "00:10:00"
-						}
 					}
 				],
 				"policy": {
@@ -4255,6 +4277,66 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/DataFlowSourceEmployee')]",
+				"[concat(variables('factoryId'), '/datasets/DelimitedTextOutput')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflowRank')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "WindowDataSet",
+								"type": "DatasetReference"
+							},
+							"name": "sourceEMployees"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "DelimitedTextOutput",
+								"type": "DatasetReference"
+							},
+							"name": "sinkEompoyeesWithRank"
+						}
+					],
+					"transformations": [
+						{
+							"name": "rankofEmployees"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          empid as string,",
+						"          empName as string,",
+						"          gender as string,",
+						"          location as string,",
+						"          department as string,",
+						"          Salary as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> sourceEMployees",
+						"sourceEMployees rank(asc(Salary, true),",
+						"     caseInsensitive: true,",
+						"     output(Rank as long),",
+						"     dense: true) ~> rankofEmployees",
+						"rankofEmployees sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:['EmployeesWithRank.csv'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> sinkEompoyeesWithRank"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/WindowDataSet')]",
 				"[concat(variables('factoryId'), '/datasets/DelimitedTextOutput')]"
 			]
 		},

@@ -1189,30 +1189,6 @@
 								"parameters": {}
 							}
 						]
-					},
-					{
-						"name": "WebHook1",
-						"type": "WebHook",
-						"dependsOn": [
-							{
-								"activity": "Validation1",
-								"dependencyConditions": [
-									"Failed"
-								]
-							}
-						],
-						"policy": {
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"url": "\thttps://dummy.restapiexample.com/api/v1/employees",
-							"method": "POST",
-							"headers": {},
-							"body": {},
-							"timeout": "00:10:00"
-						}
 					}
 				],
 				"policy": {
