@@ -28,7 +28,7 @@
 						"referenceName": "DataSet_SQLServer",
 						"type": "DatasetReference"
 					},
-					"name": "sioutputSQL"
+					"name": "sink1"
 				}
 			],
 			"transformations": [
@@ -37,16 +37,19 @@
 				},
 				{
 					"name": "surrogateKey1"
+				},
+				{
+					"name": "derivedColumn1"
 				}
 			],
 			"scriptLines": [
 				"source(output(",
-				"          MaxEmpId as string",
+				"          MaxEmpId as integer",
 				"     ),",
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     isolationLevel: 'READ_UNCOMMITTED',",
-				"     query: 'select max(empid) as MaxEmpId from dbo.employee',",
+				"     query: 'select max(empId) as MaxEmpId from dbo.employee',",
 				"     format: 'query') ~> employees",
 				"source(output(",
 				"          empid as long,",
@@ -67,8 +70,9 @@
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> selectcolumns",
 				"selectcolumns keyGenerate(output(empId as long),",
-				"     startAt: 2L,",
+				"     startAt: 1L,",
 				"     stepValue: 1L) ~> surrogateKey1",
+				"surrogateKey1 derive(empId = empId+MaxCountofEmpId#outputs()[1].MaxEmpId) ~> derivedColumn1",
 				"employees sink(validateSchema: false,",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
@@ -79,7 +83,7 @@
 				"     mapColumn(",
 				"          MaxEmpId",
 				"     )) ~> MaxCountofEmpId",
-				"surrogateKey1 sink(allowSchemaDrift: true,",
+				"derivedColumn1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
 				"          empId as string,",
@@ -94,14 +98,7 @@
 				"     upsertable:false,",
 				"     format: 'table',",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true,",
-				"     mapColumn(",
-				"          empId,",
-				"          empName,",
-				"          gender,",
-				"          location,",
-				"          department",
-				"     )) ~> sioutputSQL"
+				"     skipDuplicateMapOutputs: true) ~> sink1"
 			]
 		}
 	}
