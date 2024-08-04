@@ -3923,6 +3923,75 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/dataflowAssert')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "DataFlowSourceEmployee",
+								"type": "DatasetReference"
+							},
+							"name": "sourceEmployee"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "DelimitedTextOutput",
+								"type": "DatasetReference"
+							},
+							"name": "sinkOutput"
+						}
+					],
+					"transformations": [
+						{
+							"name": "assertEmployeeRows"
+						},
+						{
+							"name": "derivedColumn1"
+						},
+						{
+							"name": "filterGoodRows"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          empid as string,",
+						"          empName as string,",
+						"          gender as string,",
+						"          location as string,",
+						"          department as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> sourceEmployee",
+						"sourceEmployee assert(expectTrue(!equalsIgnoreCase(location, \"Dallas\"), false, 'assertLocation')) ~> assertEmployeeRows",
+						"assertEmployeeRows derive(isError = isError()) ~> derivedColumn1",
+						"derivedColumn1 filter(isError()==false()) ~> filterGoodRows",
+						"filterGoodRows sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     mapColumn(",
+						"          empid,",
+						"          empName,",
+						"          gender,",
+						"          location,",
+						"          department",
+						"     )) ~> sinkOutput"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/DataFlowSourceEmployee')]",
+				"[concat(variables('factoryId'), '/datasets/DelimitedTextOutput')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/dataflowBranch')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
