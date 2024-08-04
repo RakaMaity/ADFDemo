@@ -12,7 +12,15 @@
 					"name": "employee"
 				}
 			],
-			"sinks": [],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DelimitedTextOutput",
+						"type": "DatasetReference"
+					},
+					"name": "employeeSink"
+				}
+			],
 			"transformations": [
 				{
 					"name": "parseSkills"
@@ -42,7 +50,22 @@
 				"parseSkills parse(parseLocation = location ? (city as string,",
 				"          country as string),",
 				"     format: 'json',",
-				"     documentForm: 'singleDocument') ~> parselocation"
+				"     documentForm: 'singleDocument') ~> parselocation",
+				"parselocation sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     partitionFileNames:['employeeparsedoutput.csv'],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     mapColumn(",
+				"          empId,",
+				"          empName,",
+				"          Skill1 = parseSkills.skill1,",
+				"          Skill2 = parseSkills.skill2,",
+				"          Skill3 = parseSkills.skill3,",
+				"          City = parseLocation.city,",
+				"          Country = parseLocation.country",
+				"     ),",
+				"     partitionBy('hash', 1)) ~> employeeSink"
 			]
 		}
 	}
