@@ -21,6 +21,269 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/pipelineLookUp')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Lookup1",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlServerSource",
+								"sqlReaderQuery": "select folderName from tableName",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"dataset": {
+								"referenceName": "DataSetSQl",
+								"type": "DatasetReference",
+								"parameters": {
+									"tableName": {
+										"value": "@pipeline().parameters.tableName",
+										"type": "Expression"
+									},
+									"serverNamefromDataset": "serverName.net",
+									"dbNamefromDataset": "dbName",
+									"UserNamefromDataset": "user",
+									"passwordfromDataset": "pass"
+								}
+							},
+							"firstRowOnly": false
+						}
+					},
+					{
+						"name": "ForEach1",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Lookup1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Lookup1').output.value",
+								"type": "Expression"
+							},
+							"isSequential": true,
+							"activities": [
+								{
+									"name": "Copy data1",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "BinarySource",
+											"storeSettings": {
+												"type": "AzureBlobStorageReadSettings",
+												"recursive": true
+											},
+											"formatSettings": {
+												"type": "BinaryReadSettings"
+											}
+										},
+										"sink": {
+											"type": "BinarySink",
+											"storeSettings": {
+												"type": "AzureBlobStorageWriteSettings"
+											}
+										},
+										"enableStaging": false
+									},
+									"inputs": [
+										{
+											"referenceName": "DataSetTest1Input",
+											"type": "DatasetReference",
+											"parameters": {}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "DataSetMultipleFolders",
+											"type": "DatasetReference",
+											"parameters": {
+												"OuputFolder": {
+													"value": "@item()",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"tableName": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"lastPublishTime": "2024-07-30T18:18:55Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pipelineSQLParam')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [
+							{
+								"name": "Source",
+								"value": "dbo.@{pipeline().parameters.sourceTableNameFromPipeline}"
+							},
+							{
+								"name": "Destination",
+								"value": "dbo.@{pipeline().parameters.destinationTableNameFromPipeline}"
+							}
+						],
+						"typeProperties": {
+							"source": {
+								"type": "SqlServerSource",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "SqlServerSink",
+								"writeBehavior": "insert",
+								"sqlWriterUseTableLock": false
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "DataSetSQl",
+								"type": "DatasetReference",
+								"parameters": {
+									"tableName": {
+										"value": "@pipeline().parameters.sourceTableNameFromPipeline",
+										"type": "Expression"
+									},
+									"serverNamefromDataset": {
+										"value": "@pipeline().parameters.serverNameFromPipeline",
+										"type": "Expression"
+									},
+									"dbNamefromDataset": {
+										"value": "@pipeline().parameters.dbNameFromPipeline",
+										"type": "Expression"
+									},
+									"UserNamefromDataset": {
+										"value": "@pipeline().parameters.userNameFromPipeline",
+										"type": "Expression"
+									},
+									"passwordfromDataset": {
+										"value": "@pipeline().parameters.passwordFromPipeline",
+										"type": "Expression"
+									}
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DataSetSQl",
+								"type": "DatasetReference",
+								"parameters": {
+									"tableName": {
+										"value": "@pipeline().parameters.destinationTableNameFromPipeline",
+										"type": "Expression"
+									},
+									"serverNamefromDataset": {
+										"value": "@pipeline().parameters.serverNameFromPipeline",
+										"type": "Expression"
+									},
+									"dbNamefromDataset": {
+										"value": "@pipeline().parameters.dbNameFromPipeline",
+										"type": "Expression"
+									},
+									"UserNamefromDataset": {
+										"value": "@pipeline().parameters.userNameFromPipeline",
+										"type": "Expression"
+									},
+									"passwordfromDataset": {
+										"value": "@pipeline().parameters.passwordFromPipeline",
+										"type": "Expression"
+									}
+								}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"serverNameFromPipeline": {
+						"type": "String"
+					},
+					"dbNameFromPipeline": {
+						"type": "String"
+					},
+					"userNameFromPipeline": {
+						"type": "String"
+					},
+					"passwordFromPipeline": {
+						"type": "String"
+					},
+					"sourceTableNameFromPipeline": {
+						"type": "String"
+					},
+					"destinationTableNameFromPipeline": {
+						"type": "String"
+					}
+				},
+				"annotations": [],
+				"lastPublishTime": "2024-07-29T07:23:00Z"
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/pipelineValidateand DriftSchemaCheck')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -246,7 +509,9 @@
 				"annotations": [],
 				"lastPublishTime": "2024-07-29T16:38:21Z"
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/pipelineSQLParam')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/EventTriggerVariables')]",

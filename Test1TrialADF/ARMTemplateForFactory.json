@@ -5522,6 +5522,80 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/dataflowUsingFlowlet')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "WindowDataSet",
+								"type": "DatasetReference"
+							},
+							"name": "employeesWithDuplicateRows"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "DelimitedTextOutput",
+								"type": "DatasetReference"
+							},
+							"name": "sinkOfEmployees"
+						}
+					],
+					"transformations": [
+						{
+							"name": "flowlet1",
+							"flowlet": {
+								"referenceName": "flowletForRemovingDuplicates",
+								"type": "DataFlowReference",
+								"parameters": {}
+							}
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          empid as string,",
+						"          empName as string,",
+						"          gender as string,",
+						"          location as string,",
+						"          department as string,",
+						"          Salary as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> employeesWithDuplicateRows",
+						"employeesWithDuplicateRows compose(mapColumn(",
+						"          empName,",
+						"          gender,",
+						"          department",
+						"     ),",
+						"     composition: 'flowletForRemovingDuplicates') ~> flowlet1@(outputofFlowlet)",
+						"flowlet1@outputofFlowlet sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:['EmployeesFlowlet.csv'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     mapColumn(",
+						"          empId,",
+						"          empName,",
+						"          gender,",
+						"          department",
+						"     ),",
+						"     partitionBy('hash', 1)) ~> sinkOfEmployees"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/flowletForRemovingDuplicates')]",
+				"[concat(variables('factoryId'), '/datasets/WindowDataSet')]",
+				"[concat(variables('factoryId'), '/datasets/DelimitedTextOutput')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/dataflowValidateSchemaAndSchemaDrift')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -5638,6 +5712,65 @@
 				"[concat(variables('factoryId'), '/datasets/WindowDataSet')]",
 				"[concat(variables('factoryId'), '/datasets/DelimitedTextOutput')]"
 			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/flowletForRemovingDuplicates')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "Flowlet",
+				"typeProperties": {
+					"sources": [],
+					"sinks": [],
+					"transformations": [
+						{
+							"name": "aggregate1"
+						},
+						{
+							"name": "select1"
+						},
+						{
+							"name": "surrogateKey1"
+						},
+						{
+							"name": "EmployeeInput"
+						},
+						{
+							"name": "outputofFlowlet"
+						}
+					],
+					"scriptLines": [
+						"input(output(",
+						"          empName as string,",
+						"          gender as string,",
+						"          department as string",
+						"     ),",
+						"     order: 0,",
+						"     allowSchemaDrift: true) ~> EmployeeInput",
+						"EmployeeInput aggregate(groupBy(empName,",
+						"          gender,",
+						"          department),",
+						"     count = count()) ~> aggregate1",
+						"aggregate1 select(mapColumn(",
+						"          empName,",
+						"          gender,",
+						"          department",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select1",
+						"select1 keyGenerate(output(empId as long),",
+						"     startAt: 1L,",
+						"     stepValue: 1L) ~> surrogateKey1",
+						"surrogateKey1 output(mapColumn(",
+						"          empName,",
+						"          gender,",
+						"          department,",
+						"          empId",
+						"     )) ~> outputofFlowlet"
+					]
+				}
+			},
+			"dependsOn": []
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/powerqueryTableUpdate')]",

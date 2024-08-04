@@ -13,6 +13,92 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/dataflowAggr')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "DataFlowSourceEmployee",
+								"type": "DatasetReference"
+							},
+							"name": "employee"
+						},
+						{
+							"dataset": {
+								"referenceName": "DataFlowSourceDepartment",
+								"type": "DatasetReference"
+							},
+							"name": "department"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "DelimitedTextOutput",
+								"type": "DatasetReference"
+							},
+							"name": "TotalEmpBasedOnDeptwithRole",
+							"rejectedDataLinkedService": {
+								"referenceName": "LinkedServiceTest1",
+								"type": "LinkedServiceReference"
+							}
+						}
+					],
+					"transformations": [
+						{
+							"name": "aggregate1"
+						},
+						{
+							"name": "join1Aggr1AndDeptRole"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          empid as string,",
+						"          empName as string,",
+						"          gender as string,",
+						"          location as string,",
+						"          department as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> employee",
+						"source(output(",
+						"          department as string,",
+						"          role as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> department",
+						"employee aggregate(groupBy(department),",
+						"     TotalEmployees = count(empid),",
+						"     partitionBy('hash', 1)) ~> aggregate1",
+						"aggregate1, department join(aggregate1@department == department@department,",
+						"     joinType:'outer',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> join1Aggr1AndDeptRole",
+						"join1Aggr1AndDeptRole sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:['EmpOnDeptwithRole.csv'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     mapColumn(",
+						"          department = aggregate1@department,",
+						"          TotalEmployees,",
+						"          role",
+						"     ),",
+						"     partitionBy('hash', 1)) ~> TotalEmpBasedOnDeptwithRole"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/dataflowAlterRowTransform')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -1437,93 +1523,6 @@
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
 						"     partitionBy('hash', 1)) ~> sinkSurrogateKey"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/dataflowUnion')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "biologyDataSet",
-								"type": "DatasetReference"
-							},
-							"name": "BiologyEmployees"
-						},
-						{
-							"dataset": {
-								"referenceName": "PhysicsDataSet",
-								"type": "DatasetReference"
-							},
-							"name": "PhysicsEmployees"
-						},
-						{
-							"dataset": {
-								"referenceName": "LawEmployees",
-								"type": "DatasetReference"
-							},
-							"name": "LawEmployees"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "DelimitedTextOutput",
-								"type": "DatasetReference"
-							},
-							"name": "allEmployeesSink"
-						}
-					],
-					"transformations": [
-						{
-							"name": "allEmployees"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          empid as string,",
-						"          empName as string,",
-						"          gender as string,",
-						"          location as string,",
-						"          department as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> BiologyEmployees",
-						"source(output(",
-						"          empid as string,",
-						"          empName as string,",
-						"          gender as string,",
-						"          location as string,",
-						"          department as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> PhysicsEmployees",
-						"source(output(",
-						"          empid as string,",
-						"          empName as string,",
-						"          gender as string,",
-						"          location as string,",
-						"          department as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> LawEmployees",
-						"BiologyEmployees, PhysicsEmployees, LawEmployees union(byName: true)~> allEmployees",
-						"allEmployees sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     partitionFileNames:['allEmployeesUnion.csv'],",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     partitionBy('hash', 1)) ~> allEmployeesSink"
 					]
 				}
 			},

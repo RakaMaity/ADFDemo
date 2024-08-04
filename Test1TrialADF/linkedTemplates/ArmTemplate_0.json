@@ -238,6 +238,65 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/flowletForRemovingDuplicates')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "Flowlet",
+				"typeProperties": {
+					"sources": [],
+					"sinks": [],
+					"transformations": [
+						{
+							"name": "aggregate1"
+						},
+						{
+							"name": "select1"
+						},
+						{
+							"name": "surrogateKey1"
+						},
+						{
+							"name": "EmployeeInput"
+						},
+						{
+							"name": "outputofFlowlet"
+						}
+					],
+					"scriptLines": [
+						"input(output(",
+						"          empName as string,",
+						"          gender as string,",
+						"          department as string",
+						"     ),",
+						"     order: 0,",
+						"     allowSchemaDrift: true) ~> EmployeeInput",
+						"EmployeeInput aggregate(groupBy(empName,",
+						"          gender,",
+						"          department),",
+						"     count = count()) ~> aggregate1",
+						"aggregate1 select(mapColumn(",
+						"          empName,",
+						"          gender,",
+						"          department",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select1",
+						"select1 keyGenerate(output(empId as long),",
+						"     startAt: 1L,",
+						"     stepValue: 1L) ~> surrogateKey1",
+						"surrogateKey1 output(mapColumn(",
+						"          empName,",
+						"          gender,",
+						"          department,",
+						"          empId",
+						"     )) ~> outputofFlowlet"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/Binary1')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -737,65 +796,6 @@
 					}
 				},
 				"schema": {}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/LinkedServiceTest1')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/InputSource')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "LinkedServiceTest1",
-					"type": "LinkedServiceReference"
-				},
-				"parameters": {
-					"inputfolder": {
-						"type": "String"
-					},
-					"fileName": {
-						"type": "String"
-					}
-				},
-				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"fileName": {
-							"value": "@dataset().fileName",
-							"type": "Expression"
-						},
-						"container": {
-							"value": "@dataset().inputfolder",
-							"type": "Expression"
-						}
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": [
-					{
-						"name": "empid",
-						"type": "String"
-					},
-					{
-						"name": "empName",
-						"type": "String"
-					},
-					{
-						"name": "location",
-						"type": "String"
-					},
-					{
-						"name": "department",
-						"type": "String"
-					}
-				]
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/LinkedServiceTest1')]"
