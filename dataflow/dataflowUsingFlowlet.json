@@ -12,10 +12,22 @@
 					"name": "employeesWithDuplicateRows"
 				}
 			],
-			"sinks": [],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DelimitedTextOutput",
+						"type": "DatasetReference"
+					},
+					"name": "sinkOfEmployees"
+				}
+			],
 			"transformations": [
 				{
-					"name": "flowlet1"
+					"name": "flowlet1",
+					"flowlet": {
+						"referenceName": "flowletForRemovingDuplicates",
+						"type": "DataFlowReference"
+					}
 				}
 			],
 			"scriptLines": [
@@ -30,7 +42,24 @@
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false) ~> employeesWithDuplicateRows",
-				"employeesWithDuplicateRows compose(composition: 'undefined') ~> flowlet1@()"
+				"employeesWithDuplicateRows compose(mapColumn(",
+				"          empName,",
+				"          gender,",
+				"          department",
+				"     ),",
+				"     composition: 'flowletForRemovingDuplicates') ~> flowlet1@(outputofFlowlet)",
+				"flowlet1@outputofFlowlet sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     partitionFileNames:['EmployeesFlowlet.csv'],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     mapColumn(",
+				"          empId,",
+				"          empName,",
+				"          gender,",
+				"          department",
+				"     ),",
+				"     partitionBy('hash', 1)) ~> sinkOfEmployees"
 			]
 		}
 	}
