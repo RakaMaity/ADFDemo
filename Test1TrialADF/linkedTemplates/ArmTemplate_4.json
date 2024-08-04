@@ -21,6 +21,84 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/MasterPipeline')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Master-Slave",
+				"activities": [
+					{
+						"name": "Master",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "pipelineSQLParam",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"serverNameFromPipeline": {
+									"value": "@pipeline().parameters.serverName",
+									"type": "Expression"
+								},
+								"dbNameFromPipeline": {
+									"value": "@pipeline().parameters.dbName",
+									"type": "Expression"
+								},
+								"userNameFromPipeline": {
+									"value": "@pipeline().parameters.userName",
+									"type": "Expression"
+								},
+								"passwordFromPipeline": {
+									"value": "@pipeline().parameters.Password",
+									"type": "Expression"
+								},
+								"sourceTableNameFromPipeline": {
+									"value": "@pipeline().parameters.SourceTable",
+									"type": "Expression"
+								},
+								"destinationTableNameFromPipeline": {
+									"value": "@pipeline().parameters.DestTable",
+									"type": "Expression"
+								}
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"serverName": {
+						"type": "string"
+					},
+					"dbName": {
+						"type": "string"
+					},
+					"userName": {
+						"type": "string"
+					},
+					"Password": {
+						"type": "string"
+					},
+					"SourceTable": {
+						"type": "string"
+					},
+					"DestTable": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"lastPublishTime": "2024-07-29T16:38:21Z"
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/EventTriggerVariables')]",
 			"type": "Microsoft.DataFactory/factories/triggers",
 			"apiVersion": "2018-06-01",
