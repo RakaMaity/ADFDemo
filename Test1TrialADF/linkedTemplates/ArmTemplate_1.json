@@ -672,6 +672,23 @@
 								"type": "Expression"
 							}
 						}
+					},
+					{
+						"name": "PipelineFail",
+						"type": "Fail",
+						"dependsOn": [
+							{
+								"activity": "errorMessage",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"message": "Reason",
+							"errorCode": "404"
+						}
 					}
 				],
 				"policy": {
