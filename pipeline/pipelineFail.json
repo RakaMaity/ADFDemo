@@ -59,8 +59,37 @@
 						"type": "DatasetReference"
 					}
 				]
+			},
+			{
+				"name": "errorMessage",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Copy data1",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "errMsg",
+					"value": {
+						"value": "@activity('Copy data1').output.errors[0].Message",
+						"type": "Expression"
+					}
+				}
 			}
 		],
+		"variables": {
+			"errMsg": {
+				"type": "String"
+			}
+		},
 		"annotations": []
 	}
 }
