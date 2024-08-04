@@ -3,15 +3,7 @@
 	"properties": {
 		"type": "Flowlet",
 		"typeProperties": {
-			"sources": [
-				{
-					"linkedService": {
-						"referenceName": "LinkedServiceTest1",
-						"type": "LinkedServiceReference"
-					},
-					"name": "sourceEmployee"
-				}
-			],
+			"sources": [],
 			"sinks": [],
 			"transformations": [
 				{
@@ -24,31 +16,21 @@
 					"name": "surrogateKey1"
 				},
 				{
+					"name": "EmployeeInput"
+				},
+				{
 					"name": "outputofFlowlet"
 				}
 			],
 			"scriptLines": [
-				"source(output(",
-				"          empid as short,",
+				"input(output(",
 				"          empName as string,",
 				"          gender as string,",
-				"          location as string,",
-				"          department as string,",
-				"          Salary as short",
+				"          department as string",
 				"     ),",
-				"     useSchema: false,",
-				"     allowSchemaDrift: true,",
-				"     validateSchema: false,",
-				"     ignoreNoFilesFound: false,",
-				"     format: 'delimited',",
-				"     container: 'test1containerrg',",
-				"     folderPath: 'input',",
-				"     fileName: 'employeewindow.csv',",
-				"     columnDelimiter: ',',",
-				"     escapeChar: '\\\\',",
-				"     quoteChar: '\\\"',",
-				"     columnNamesAsHeader: true) ~> sourceEmployee",
-				"sourceEmployee aggregate(groupBy(empName,",
+				"     order: 0,",
+				"     allowSchemaDrift: true) ~> EmployeeInput",
+				"EmployeeInput aggregate(groupBy(empName,",
 				"          gender,",
 				"          department),",
 				"     count = count()) ~> aggregate1",
