@@ -23,7 +23,10 @@
 						"coreCount": 8,
 						"computeType": "General"
 					},
-					"traceLevel": "Fine"
+					"traceLevel": "None",
+					"cacheSinks": {
+						"firstRowOnly": true
+					}
 				}
 			},
 			{
@@ -45,7 +48,7 @@
 				"typeProperties": {
 					"variableName": "maxSal",
 					"value": {
-						"value": "@activity('Data flow1').output.value",
+						"value": "@activity('Data flow1').output.runStatus.output.sink1[0].MaxSalary",
 						"type": "Expression"
 					}
 				}
