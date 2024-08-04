@@ -1,0 +1,34 @@
+{
+	"name": "DS_SQL_Employee11",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LinkedService_SQL",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "SqlServerTable",
+		"schema": [
+			{
+				"name": "empId",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "empName",
+				"type": "varchar"
+			},
+			{
+				"name": "skills",
+				"type": "varchar"
+			},
+			{
+				"name": "location",
+				"type": "varchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "employee11"
+		}
+	}
+}
