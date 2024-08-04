@@ -59,7 +59,7 @@
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false) ~> department",
 				"employee aggregate(groupBy(department),",
-				"     TotalEmployees = count(department),",
+				"     TotalEmployees = count(empid),",
 				"     partitionBy('hash', 1)) ~> aggregate1",
 				"aggregate1, department join(aggregate1@department == department@department,",
 				"     joinType:'outer',",
