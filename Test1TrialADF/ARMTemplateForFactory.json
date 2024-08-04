@@ -4627,12 +4627,26 @@
 								"referenceName": "EmpJSONOutput",
 								"type": "DatasetReference"
 							},
-							"name": "sink1"
+							"name": "FlattenedJSONoutput",
+							"description": "when flatten is used, arraydata type values are converted into multiple rows."
+						},
+						{
+							"dataset": {
+								"referenceName": "DelimitedTextOutput",
+								"type": "DatasetReference"
+							},
+							"name": "sink2"
 						}
 					],
 					"transformations": [
 						{
 							"name": "flatten1"
+						},
+						{
+							"name": "stringifyJSON"
+						},
+						{
+							"name": "derivedColumn1"
 						}
 					],
 					"scriptLines": [
@@ -4671,6 +4685,9 @@
 						"     ),",
 						"     skipDuplicateMapInputs: false,",
 						"     skipDuplicateMapOutputs: false) ~> flatten1",
+						"EmployeeJSONData stringify(contact = contact ? string,",
+						"     format: 'json') ~> stringifyJSON",
+						"stringifyJSON derive(contact = toString(contact)) ~> derivedColumn1",
 						"flatten1 sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     partitionFileNames:['EmployeesJSONOutput'],",
@@ -4689,13 +4706,32 @@
 						"          skills,",
 						"          years_of_experience",
 						"     ),",
-						"     partitionBy('hash', 1)) ~> sink1"
+						"     partitionBy('hash', 1)) ~> FlattenedJSONoutput",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:['empJSON.csv'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     mapColumn(",
+						"          age,",
+						"          contact,",
+						"          department,",
+						"          first_name,",
+						"          gender,",
+						"          id,",
+						"          job_title,",
+						"          last_name,",
+						"          salary,",
+						"          skills",
+						"     ),",
+						"     partitionBy('hash', 1)) ~> sink2"
 					]
 				}
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/EmpJSONDataSet')]",
-				"[concat(variables('factoryId'), '/datasets/EmpJSONOutput')]"
+				"[concat(variables('factoryId'), '/datasets/EmpJSONOutput')]",
+				"[concat(variables('factoryId'), '/datasets/DelimitedTextOutput')]"
 			]
 		},
 		{
