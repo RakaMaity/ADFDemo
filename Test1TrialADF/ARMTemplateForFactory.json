@@ -3822,6 +3822,23 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/GenderMappingFunction')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "UDFLibrary",
+				"typeProperties": {
+					"sources": [],
+					"sinks": [],
+					"transformations": [],
+					"scriptLines": [
+						"GenderToIntegerFunction(string) as integer = iif(i1==\"Female\",1,iif(i1==\"Male\", 0, -1))"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/dataflowAggr')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -4422,6 +4439,67 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/dataflowCastTranform')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "WindowDataSet",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "DelimitedTextOutput",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "castemp"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          empid as string,",
+						"          empName as string,",
+						"          gender as string,",
+						"          location as string,",
+						"          department as string,",
+						"          Salary as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> source1",
+						"source1 cast(output(",
+						"          empid as integer,",
+						"          Salary as integer",
+						"     ),",
+						"     errors: true) ~> castemp",
+						"castemp sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:['outputcase.csv'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/WindowDataSet')]",
+				"[concat(variables('factoryId'), '/datasets/DelimitedTextOutput')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/dataflowConditionalSplit')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -4718,6 +4796,82 @@
 				"[concat(variables('factoryId'), '/datasets/DataFlowSourceEmployee')]",
 				"[concat(variables('factoryId'), '/datasets/DelimitedTextOutput')]",
 				"[concat(variables('factoryId'), '/linkedServices/LinkedServiceTest1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflowFuzzyJoins')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "LawEmployees",
+								"type": "DatasetReference"
+							},
+							"name": "law"
+						},
+						{
+							"dataset": {
+								"referenceName": "PhysicsDataSet",
+								"type": "DatasetReference"
+							},
+							"name": "physics"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "DelimitedTextOutput",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "join1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          empid as short,",
+						"          empName as string,",
+						"          gender as string,",
+						"          location as string,",
+						"          department as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> law",
+						"source(output(",
+						"          empid as string,",
+						"          empName as string,",
+						"          gender as string,",
+						"          location as string,",
+						"          department as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> physics",
+						"law, physics join(fuzzyCompare(law@gender, physics@gender, 64.00),",
+						"     joinType:'inner',",
+						"     matchType:'fuzzy',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'off')~> join1",
+						"join1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/LawEmployees')]",
+				"[concat(variables('factoryId'), '/datasets/PhysicsDataSet')]",
+				"[concat(variables('factoryId'), '/datasets/DelimitedTextOutput')]"
 			]
 		},
 		{
@@ -5567,6 +5721,78 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/dataflowUserDefinedFunction')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "WindowDataSet",
+								"type": "DatasetReference"
+							},
+							"name": "employee"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "DelimitedTextOutput",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "MappingOfGenderColumnValues"
+						}
+					],
+					"udfLibraries": [
+						{
+							"referenceName": "GenderMappingFunction",
+							"type": "DataFlowReference"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          empid as string,",
+						"          empName as string,",
+						"          gender as string,",
+						"          location as string,",
+						"          department as string,",
+						"          Salary as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> employee",
+						"employee derive(gender = GenderToIntegerFunction(gender)) ~> MappingOfGenderColumnValues",
+						"MappingOfGenderColumnValues sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:['EmployeeWithGenderIntegerMapping.csv'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     mapColumn(",
+						"          empid,",
+						"          empName,",
+						"          gender,",
+						"          location,",
+						"          department,",
+						"          Salary",
+						"     ),",
+						"     partitionBy('hash', 1)) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/GenderMappingFunction')]",
+				"[concat(variables('factoryId'), '/datasets/WindowDataSet')]",
+				"[concat(variables('factoryId'), '/datasets/DelimitedTextOutput')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/dataflowUsingFlowlet')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -5839,112 +6065,6 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/DataFlowSourceEmployee')]"
 			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/GenderMappingFunction')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"type": "UDFLibrary",
-				"typeProperties": {
-					"sources": [],
-					"sinks": [],
-					"transformations": [],
-					"scriptLines": [
-						"GenderToIntegerFunction(string) as integer = iif(i1==\"Female\",1,iif(i1==\"Male\", 0, -1))"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/dataflowUserDefinedFunction')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "WindowDataSet",
-								"type": "DatasetReference"
-							},
-							"name": "employee"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "DelimitedTextOutput",
-								"type": "DatasetReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [
-						{
-							"name": "MappingOfGenderColumnValues"
-						}
-					],
-					"udfLibraries": [
-						{
-							"referenceName": "GenderMappingFunction",
-							"type": "DataFlowReference"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          empid as string,",
-						"          empName as string,",
-						"          gender as string,",
-						"          location as string,",
-						"          department as string,",
-						"          Salary as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> employee",
-						"employee derive(gender = GenderToIntegerFunction(gender)) ~> MappingOfGenderColumnValues",
-						"MappingOfGenderColumnValues sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     partitionFileNames:['EmployeeWithGenderIntegerMapping.csv'],",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     mapColumn(",
-						"          empid,",
-						"          empName,",
-						"          gender,",
-						"          location,",
-						"          department,",
-						"          Salary",
-						"     ),",
-						"     partitionBy('hash', 1)) ~> sink1"
-					]
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/dataflows/GenderMappingFunction')]",
-				"[concat(variables('factoryId'), '/datasets/WindowDataSet')]",
-				"[concat(variables('factoryId'), '/datasets/DelimitedTextOutput')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/dataflow1')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [],
-					"sinks": [],
-					"transformations": [],
-					"scriptLines": [
-						""
-					]
-				}
-			},
-			"dependsOn": []
 		}
 	]
 }
