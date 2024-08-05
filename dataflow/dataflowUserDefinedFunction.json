@@ -1,0 +1,44 @@
+{
+	"name": "dataflowUserDefinedFunction",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "WindowDataSet",
+						"type": "DatasetReference"
+					},
+					"name": "employee"
+				}
+			],
+			"sinks": [],
+			"transformations": [
+				{
+					"name": "MappingOfGenderColumnValues"
+				}
+			],
+			"udfLibraries": [
+				{
+					"referenceName": "GenderMappingFunction",
+					"type": "DataFlowReference"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          empid as string,",
+				"          empName as string,",
+				"          gender as string,",
+				"          location as string,",
+				"          department as string,",
+				"          Salary as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> employee",
+				"employee derive(gender = GenderToIntegerFunction(gender),",
+				"          isError = isError()) ~> MappingOfGenderColumnValues"
+			]
+		}
+	}
+}
