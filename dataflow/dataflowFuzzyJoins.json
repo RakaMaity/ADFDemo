@@ -1,0 +1,57 @@
+{
+	"name": "dataflowFuzzyJoins",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "LawEmployees",
+						"type": "DatasetReference"
+					},
+					"name": "law"
+				},
+				{
+					"dataset": {
+						"referenceName": "PhysicsDataSet",
+						"type": "DatasetReference"
+					},
+					"name": "physics"
+				}
+			],
+			"sinks": [],
+			"transformations": [
+				{
+					"name": "join1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          empid as short,",
+				"          empName as string,",
+				"          gender as string,",
+				"          location as string,",
+				"          department as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> law",
+				"source(output(",
+				"          empid as string,",
+				"          empName as string,",
+				"          gender as string,",
+				"          location as string,",
+				"          department as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> physics",
+				"law, physics join(fuzzyCompare(law@gender, physics@gender, 64.00),",
+				"     joinType:'inner',",
+				"     matchType:'fuzzy',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'off')~> join1"
+			]
+		}
+	}
+}
