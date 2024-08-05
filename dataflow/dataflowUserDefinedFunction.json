@@ -12,7 +12,15 @@
 					"name": "employee"
 				}
 			],
-			"sinks": [],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DelimitedTextOutput",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
 			"transformations": [
 				{
 					"name": "MappingOfGenderColumnValues"
@@ -36,8 +44,21 @@
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false) ~> employee",
-				"employee derive(gender = GenderToIntegerFunction(gender),",
-				"          isError = isError()) ~> MappingOfGenderColumnValues"
+				"employee derive(gender = GenderToIntegerFunction(gender)) ~> MappingOfGenderColumnValues",
+				"MappingOfGenderColumnValues sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     partitionFileNames:['EmployeeWithGenderIntegerMapping.csv'],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     mapColumn(",
+				"          empid,",
+				"          empName,",
+				"          gender,",
+				"          location,",
+				"          department,",
+				"          Salary",
+				"     ),",
+				"     partitionBy('hash', 1)) ~> sink1"
 			]
 		}
 	}
