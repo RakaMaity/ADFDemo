@@ -10,6 +10,9 @@
 				"type": "string",
 				"value": "employee.csv"
 			}
+		},
+		"globalConfigurations": {
+			"PipelineBillingEnabled": "true"
 		}
 	},
 	"location": "centralindia",
