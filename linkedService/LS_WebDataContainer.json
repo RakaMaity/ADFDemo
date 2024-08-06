@@ -1,0 +1,15 @@
+{
+	"name": "LS_WebDataContainer",
+	"properties": {
+		"annotations": [],
+		"type": "Web",
+		"typeProperties": {
+			"url": "https://interviewsansar.com/sql-practice-test-queries-on-employee-data-in-relational-table/",
+			"authenticationType": "Anonymous"
+		},
+		"connectVia": {
+			"referenceName": "SelfHostIR",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}
