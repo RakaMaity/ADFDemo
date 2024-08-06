@@ -1,0 +1,24 @@
+{
+	"name": "OutputWeb",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LinkedServiceTest2SelfHost",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "webTable.csv",
+				"folderPath": "outputWeb",
+				"container": "test1containerrg"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": []
+	}
+}
