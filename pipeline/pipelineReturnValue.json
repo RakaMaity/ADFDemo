@@ -46,7 +46,7 @@
 						{
 							"type": "Query",
 							"text": {
-								"value": "Insert into pipeline_exec_logs(PipelineName,RunId) values ('@{activity('pipelineToReturnLogs').output.pipelineReturnValue.PipelineId}','@{activity('pipelineToReturnLogs').output.pipelineReturnValue.RunId}')",
+								"value": "Insert into pipeline_exec_logs(PipelineName,RunId) values ('@{activity('pipelineToReturnLogs').output.pipelineReturnValue.PipelineName}','@{activity('pipelineToReturnLogs').output.pipelineReturnValue.RunId}')",
 								"type": "Expression"
 							}
 						}
