@@ -329,6 +329,51 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/DataSetWebTable')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_WebDataContainer",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "WebTable",
+				"schema": [],
+				"typeProperties": {
+					"index": 0
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/OutputWeb')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LinkedServiceTest2SelfHost",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "webTable.csv",
+						"folderPath": "outputWeb",
+						"container": "test1containerrg"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/dataflowAggr')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -1520,137 +1565,6 @@
 						"          role",
 						"     ),",
 						"     partitionBy('hash', 1)) ~> LookUpOutput"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/dataflowParameteriztn')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "DataFlowSourceEmployee",
-								"type": "DatasetReference"
-							},
-							"name": "employeedata"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "DelimitedTextOutput",
-								"type": "DatasetReference"
-							},
-							"name": "sinkEMployeesParam"
-						}
-					],
-					"transformations": [
-						{
-							"name": "filterEmployeeOndept"
-						}
-					],
-					"scriptLines": [
-						"parameters{",
-						"     Dept as string",
-						"}",
-						"source(output(",
-						"          empid as string,",
-						"          empName as string,",
-						"          gender as string,",
-						"          location as string,",
-						"          department as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> employeedata",
-						"employeedata filter(department != $Dept) ~> filterEmployeeOndept",
-						"filterEmployeeOndept sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     partitionFileNames:['EMployeesParam.csv'],",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     partitionBy('hash', 1)) ~> sinkEMployeesParam"
-					]
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/dataflowParse')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "DS_SQL_Employee11",
-								"type": "DatasetReference"
-							},
-							"name": "employee"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "DelimitedTextOutput",
-								"type": "DatasetReference"
-							},
-							"name": "employeeSink"
-						}
-					],
-					"transformations": [
-						{
-							"name": "parseSkills"
-						},
-						{
-							"name": "parselocation"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          empId as integer,",
-						"          empName as string,",
-						"          skills as string,",
-						"          location as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     isolationLevel: 'READ_UNCOMMITTED',",
-						"     format: 'table') ~> employee",
-						"employee parse(skills = skills ? (skill1 as string,",
-						"          skill2 as string,",
-						"          skill3 as string),",
-						"     format: 'delimited',",
-						"     columnNamesAsHeader: false,",
-						"     columnDelimiter: '|',",
-						"     nullValue: '') ~> parseSkills",
-						"parseSkills parse(location = location ? (city as string,",
-						"          country as string),",
-						"     format: 'json',",
-						"     documentForm: 'singleDocument') ~> parselocation",
-						"parselocation sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     partitionFileNames:['employeeparsedoutput.csv'],",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     mapColumn(",
-						"          empId,",
-						"          empName,",
-						"          Skill1 = skills.skill1,",
-						"          Skill2 = skills.skill2,",
-						"          Skill3 = skills.skill3,",
-						"          City = location.city,",
-						"          Country = location.country",
-						"     ),",
-						"     partitionBy('hash', 1)) ~> employeeSink"
 					]
 				}
 			},

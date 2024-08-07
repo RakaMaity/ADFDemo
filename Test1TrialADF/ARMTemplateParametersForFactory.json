@@ -14,6 +14,9 @@
 		"LinkedService_SQL_password": {
 			"value": ""
 		},
+		"LS_WebDataContainer_properties_typeProperties_url": {
+			"value": "https://www.careerpower.in/states-and-capitals-of-india.html"
+		},
 		"LinkedServiceSQL_properties_typeProperties_server": {
 			"value": "@{linkedService().servername}"
 		},
@@ -37,9 +40,6 @@
 		},
 		"EventTriggerVariables_properties_typeProperties_scope": {
 			"value": "/subscriptions/4d203d9f-5fcc-460b-bfcb-e6d413307f8d/resourceGroups/Test1ResourceGrp/providers/Microsoft.Storage/storageAccounts/test1resourcegrp"
-		},
-		"LS_WebDataContainer_properties_typeProperties_url": {
-			"value": "https://www.careerpower.in/states-and-capitals-of-india.html"
 		}
 	}
 }

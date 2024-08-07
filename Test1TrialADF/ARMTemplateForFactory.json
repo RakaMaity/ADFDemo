@@ -19,6 +19,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'password' of 'LinkedService_SQL'"
 		},
+		"LS_WebDataContainer_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://www.careerpower.in/states-and-capitals-of-india.html"
+		},
 		"LinkedServiceSQL_properties_typeProperties_server": {
 			"type": "string",
 			"defaultValue": "@{linkedService().servername}"
@@ -50,10 +54,6 @@
 		"EventTriggerVariables_properties_typeProperties_scope": {
 			"type": "string",
 			"defaultValue": "/subscriptions/4d203d9f-5fcc-460b-bfcb-e6d413307f8d/resourceGroups/Test1ResourceGrp/providers/Microsoft.Storage/storageAccounts/test1resourcegrp"
-		},
-		"LS_WebDataContainer_properties_typeProperties_url": {
-			"type": "string",
-			"defaultValue": "https://www.careerpower.in/states-and-capitals-of-india.html"
 		}
 	},
 	"variables": {
@@ -2707,6 +2707,126 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/pipelineWebDataContainer')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [
+							{
+								"name": "Destination",
+								"value": "test1containerrg/outputWeb/webTable.csv"
+							}
+						],
+						"typeProperties": {
+							"source": {
+								"type": "WebSource"
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobStorageWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "Column1",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Column1",
+											"type": "String",
+											"physicalType": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "Column2",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Column2",
+											"type": "String",
+											"physicalType": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "Column3",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Column3",
+											"type": "String",
+											"physicalType": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "Column4",
+											"type": "String"
+										},
+										"sink": {
+											"name": "Column4",
+											"type": "String",
+											"physicalType": "String"
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "DataSetWebTable",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "OutputWeb",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/DataSetWebTable')]",
+				"[concat(variables('factoryId'), '/datasets/OutputWeb')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/pipelineWriteCacheToSink')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -3126,6 +3246,26 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/DataSetWebTable')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_WebDataContainer",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "WebTable",
+				"schema": [],
+				"typeProperties": {
+					"index": 0
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_WebDataContainer')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/DataSet_SQLServer')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -3458,6 +3598,35 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/OutputWeb')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LinkedServiceTest2SelfHost",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "webTable.csv",
+						"folderPath": "outputWeb",
+						"container": "test1containerrg"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LinkedServiceTest2SelfHost')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/PhysicsDataSet')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -3655,6 +3824,26 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/LinkedServiceTest1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LS_WebDataContainer')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "Web",
+				"typeProperties": {
+					"url": "[parameters('LS_WebDataContainer_properties_typeProperties_url')]",
+					"authenticationType": "Anonymous"
+				},
+				"connectVia": {
+					"referenceName": "SelfHostIR",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/integrationRuntimes/SelfHostIR')]"
 			]
 		},
 		{
@@ -6071,7 +6260,77 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/pipelineWebDataContainer')]",
+			"name": "[concat(parameters('factoryName'), '/pipelineReturnValue')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "pipelineToReturnLogs",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "pipelineToReturnLogs",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "ScriptToInsertPipeLineNameAndRunId",
+						"type": "Script",
+						"dependsOn": [
+							{
+								"activity": "pipelineToReturnLogs",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"linkedServiceName": {
+							"referenceName": "LinkedService_SQL",
+							"type": "LinkedServiceReference"
+						},
+						"typeProperties": {
+							"scripts": [
+								{
+									"type": "Query",
+									"text": {
+										"value": "Insert into pipeline_exec_logs(PipelineName,RunId) values ('@{activity('pipelineToReturnLogs').output.pipelineReturnValue.PipelineName}','@{activity('pipelineToReturnLogs').output.pipelineReturnValue.RunId}')",
+										"type": "Expression"
+									}
+								}
+							],
+							"scriptBlockExecutionTimeout": "02:00:00"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/pipelineToReturnLogs')]",
+				"[concat(variables('factoryId'), '/linkedServices/LinkedService_SQL')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pipelineToReturnLogs')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -6087,15 +6346,18 @@
 							"secureOutput": false,
 							"secureInput": false
 						},
-						"userProperties": [
-							{
-								"name": "Destination",
-								"value": "test1containerrg/outputWeb/webTable.csv"
-							}
-						],
+						"userProperties": [],
 						"typeProperties": {
 							"source": {
-								"type": "WebSource"
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
 							},
 							"sink": {
 								"type": "DelimitedTextSink",
@@ -6105,7 +6367,7 @@
 								"formatSettings": {
 									"type": "DelimitedTextWriteSettings",
 									"quoteAllText": true,
-									"fileExtension": ".txt"
+									"fileExtension": ".csv"
 								}
 							},
 							"enableStaging": false,
@@ -6114,44 +6376,60 @@
 								"mappings": [
 									{
 										"source": {
-											"name": "Column1",
-											"type": "String"
+											"name": "empid",
+											"type": "String",
+											"physicalType": "String"
 										},
 										"sink": {
-											"name": "Column1",
+											"name": "empid",
 											"type": "String",
 											"physicalType": "String"
 										}
 									},
 									{
 										"source": {
-											"name": "Column2",
-											"type": "String"
+											"name": "empName",
+											"type": "String",
+											"physicalType": "String"
 										},
 										"sink": {
-											"name": "Column2",
+											"name": "empName",
 											"type": "String",
 											"physicalType": "String"
 										}
 									},
 									{
 										"source": {
-											"name": "Column3",
-											"type": "String"
+											"name": "gender",
+											"type": "String",
+											"physicalType": "String"
 										},
 										"sink": {
-											"name": "Column3",
+											"name": "gender",
 											"type": "String",
 											"physicalType": "String"
 										}
 									},
 									{
 										"source": {
-											"name": "Column4",
-											"type": "String"
+											"name": "location",
+											"type": "String",
+											"physicalType": "String"
 										},
 										"sink": {
-											"name": "Column4",
+											"name": "location",
+											"type": "String",
+											"physicalType": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "department",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "department",
 											"type": "String",
 											"physicalType": "String"
 										}
@@ -6166,18 +6444,55 @@
 						},
 						"inputs": [
 							{
-								"referenceName": "DataSetWebTable",
+								"referenceName": "DataFlowSourceEmployee",
 								"type": "DatasetReference",
 								"parameters": {}
 							}
 						],
 						"outputs": [
 							{
-								"referenceName": "OutputWeb",
+								"referenceName": "DelimitedTextOutput",
 								"type": "DatasetReference",
 								"parameters": {}
 							}
 						]
+					},
+					{
+						"name": "VariableToCapturePipelineNameAndRinId",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "Copy data1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "pipelineReturnValue",
+							"value": [
+								{
+									"key": "PipelineName",
+									"value": {
+										"type": "Expression",
+										"content": "@pipeline().Pipeline"
+									}
+								},
+								{
+									"key": "RunId",
+									"value": {
+										"type": "Expression",
+										"content": "@pipeline().RunId"
+									}
+								}
+							],
+							"setSystemVariable": true
+						}
 					}
 				],
 				"policy": {
@@ -6186,77 +6501,8 @@
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/DataSetWebTable')]",
-				"[concat(variables('factoryId'), '/datasets/OutputWeb')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/LS_WebDataContainer')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"type": "Web",
-				"typeProperties": {
-					"url": "[parameters('LS_WebDataContainer_properties_typeProperties_url')]",
-					"authenticationType": "Anonymous"
-				},
-				"connectVia": {
-					"referenceName": "SelfHostIR",
-					"type": "IntegrationRuntimeReference"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/integrationRuntimes/SelfHostIR')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/DataSetWebTable')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "LS_WebDataContainer",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "WebTable",
-				"schema": [],
-				"typeProperties": {
-					"index": 0
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/LS_WebDataContainer')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/OutputWeb')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "LinkedServiceTest2SelfHost",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"fileName": "webTable.csv",
-						"folderPath": "outputWeb",
-						"container": "test1containerrg"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/LinkedServiceTest2SelfHost')]"
+				"[concat(variables('factoryId'), '/datasets/DataFlowSourceEmployee')]",
+				"[concat(variables('factoryId'), '/datasets/DelimitedTextOutput')]"
 			]
 		}
 	]

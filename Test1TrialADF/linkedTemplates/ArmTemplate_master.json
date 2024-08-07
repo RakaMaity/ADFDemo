@@ -19,6 +19,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'password' of 'LinkedService_SQL'"
 		},
+		"LS_WebDataContainer_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://www.careerpower.in/states-and-capitals-of-india.html"
+		},
 		"LinkedServiceSQL_properties_typeProperties_server": {
 			"type": "string",
 			"defaultValue": "@{linkedService().servername}"
@@ -50,10 +54,6 @@
 		"EventTriggerVariables_properties_typeProperties_scope": {
 			"type": "string",
 			"defaultValue": "/subscriptions/4d203d9f-5fcc-460b-bfcb-e6d413307f8d/resourceGroups/Test1ResourceGrp/providers/Microsoft.Storage/storageAccounts/test1resourcegrp"
-		},
-		"LS_WebDataContainer_properties_typeProperties_url": {
-			"type": "string",
-			"defaultValue": "https://www.careerpower.in/states-and-capitals-of-india.html"
 		},
 		"containerUri": {
 			"type": "string",
@@ -118,6 +118,9 @@
 					"LinkedServiceTest2SelfHost_connectionString": {
 						"value": "[parameters('LinkedServiceTest2SelfHost_connectionString')]"
 					},
+					"LS_WebDataContainer_properties_typeProperties_url": {
+						"value": "[parameters('LS_WebDataContainer_properties_typeProperties_url')]"
+					},
 					"LinkedServiceSQL_properties_typeProperties_server": {
 						"value": "[parameters('LinkedServiceSQL_properties_typeProperties_server')]"
 					},
@@ -126,9 +129,6 @@
 					},
 					"LinkedServiceSQL_properties_typeProperties_userName": {
 						"value": "[parameters('LinkedServiceSQL_properties_typeProperties_userName')]"
-					},
-					"LS_WebDataContainer_properties_typeProperties_url": {
-						"value": "[parameters('LS_WebDataContainer_properties_typeProperties_url')]"
 					}
 				}
 			},
