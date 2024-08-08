@@ -1,5 +1,5 @@
 {
-	"name": "pipeline1",
+	"name": "pipeline1CopyRESTAPIdata",
 	"properties": {
 		"activities": [
 			{
@@ -21,7 +21,7 @@
 						"requestInterval": "00.00:00:00.010",
 						"requestMethod": "GET",
 						"paginationRules": {
-							"AbsoluteUrl": "$.next"
+							"QueryParameters.{offset}": "RANGE:0:1302:20"
 						}
 					},
 					"sink": {
