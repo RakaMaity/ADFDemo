@@ -35,6 +35,9 @@
 		"LinkedService_SQL_properties_typeProperties_userName": {
 			"value": "SQLDBADF"
 		},
+		"RestService_API_properties_typeProperties_url": {
+			"value": "https://pokeapi.co/api/v2/pokemon?offset={offset}&limit=20"
+		},
 		"EventTriggerVariables_properties_pipeline1variables_parameters_FileName": {
 			"value": "@triggerBody().fileName"
 		},

@@ -47,6 +47,10 @@
 			"type": "string",
 			"defaultValue": "SQLDBADF"
 		},
+		"RestService_API_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://pokeapi.co/api/v2/pokemon?offset={offset}&limit=20"
+		},
 		"EventTriggerVariables_properties_pipeline1variables_parameters_FileName": {
 			"type": "string",
 			"defaultValue": "@triggerBody().fileName"
@@ -96,6 +100,9 @@
 					},
 					"LinkedService_SQL_properties_typeProperties_userName": {
 						"value": "[parameters('LinkedService_SQL_properties_typeProperties_userName')]"
+					},
+					"RestService_API_properties_typeProperties_url": {
+						"value": "[parameters('RestService_API_properties_typeProperties_url')]"
 					}
 				}
 			},
@@ -189,6 +196,26 @@
 				"parameters": {
 					"factoryName": {
 						"value": "[parameters('factoryName')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'Test1TrialADF_ArmTemplate_3')]"
+			]
+		},
+		{
+			"name": "Test1TrialADF_ArmTemplate_5",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_5.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
 					},
 					"EventTriggerVariables_properties_pipeline1variables_parameters_FileName": {
 						"value": "[parameters('EventTriggerVariables_properties_pipeline1variables_parameters_FileName')]"
@@ -199,7 +226,7 @@
 				}
 			},
 			"dependsOn": [
-				"[resourceId('Microsoft.Resources/deployments', 'Test1TrialADF_ArmTemplate_3')]"
+				"[resourceId('Microsoft.Resources/deployments', 'Test1TrialADF_ArmTemplate_4')]"
 			]
 		}
 	]
